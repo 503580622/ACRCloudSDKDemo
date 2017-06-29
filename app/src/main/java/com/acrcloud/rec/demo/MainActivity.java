@@ -1,21 +1,7 @@
 package com.acrcloud.rec.demo;
 
-import java.io.File;
-import java.util.ArrayList;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.acrcloud.rec.sdk.ACRCloudConfig;
-import com.acrcloud.rec.sdk.ACRCloudClient;
-import com.acrcloud.rec.sdk.IACRCloudListener;
-import com.acrcloud.rec.util.FileUtils;
-import com.acrcloud.rec.util.UploadAudios;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
@@ -35,6 +21,20 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.acrcloud.rec.JiaHeLogistic;
+import com.acrcloud.rec.sdk.ACRCloudClient;
+import com.acrcloud.rec.sdk.ACRCloudConfig;
+import com.acrcloud.rec.sdk.IACRCloudListener;
+import com.acrcloud.rec.util.BasicNetworkHandler;
+import com.acrcloud.rec.util.FileManager;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.util.ArrayList;
 
 public class MainActivity extends Activity implements IACRCloudListener {
 	private static final int NECESSARY_PERMISSION = 100;
@@ -59,7 +59,8 @@ public class MainActivity extends Activity implements IACRCloudListener {
 			Uri uri = data.getData();
 			if ("file".equalsIgnoreCase(uri.getScheme())) {//使用第三方应用打开
 				path = uri.getPath();
-				Toast.makeText(this, path + "11111", Toast.LENGTH_SHORT).show();
+				//Toast.makeText(this, path + "11111", Toast.LENGTH_SHORT).show();
+				FileManager.asynPost(this, new File(path), null, new BasicNetworkHandler(JiaHeLogistic.getInstance()));
 				return;
 			}
 			if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {//4.4以后
@@ -67,12 +68,10 @@ public class MainActivity extends Activity implements IACRCloudListener {
 				Toast.makeText(this, path, Toast.LENGTH_SHORT).show();
 			} else {//4.4以下下系统调用方法
 				path = getRealPathFromURI(uri);
-
-				Toast.makeText(MainActivity.this, path + "222222", Toast.LENGTH_SHORT).show();
+				//Toast.makeText(MainActivity.this, path + "222222", Toast.LENGTH_SHORT).show();
 			}
-
-			UploadAudios upload = new UploadAudios();
-			upload.upload("mytest_id", "abc", path, "audio", "TestBucket", "28d1eb21bbb565e746281ff99bc3bb04", "9b67PoDPE8OZ0ALPJsHjUgd3a9yLLRrcH8lO91rU", null);
+			JiaHeLogistic.getInstance().getStack().push(this);
+			FileManager.asynPost(this, new File(path), null, new BasicNetworkHandler(JiaHeLogistic.getInstance()));
 			Log.e("path:", path);
 		}
 	}
@@ -208,7 +207,7 @@ public class MainActivity extends Activity implements IACRCloudListener {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-				intent.setType("audio/*"); //选择音频
+				intent.setType("*/*"); //选择音频
 				intent.addCategory(Intent.CATEGORY_OPENABLE);
 				startActivityForResult(intent, 1);
 			}
