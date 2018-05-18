@@ -135,7 +135,7 @@ public class JiaHeLogistic extends Application {
 	 * @return 系统版本
 	 */
 	private int initSDKVersion() {
-		int sdkVersion, b, c;
+		int sdkVersion, b, c, d;
 		try {
 			sdkVersion = Build.VERSION.SDK_INT;
 		} catch (Exception e) {
